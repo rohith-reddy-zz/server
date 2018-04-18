@@ -1,0 +1,3 @@
+render function is used to take specific components and mount them into specific DOM node on the server for client side
+
+renderToString function is used to convert our react app(components) to a string
