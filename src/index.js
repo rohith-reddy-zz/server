@@ -10,7 +10,7 @@ import Routes from './client/Routes';
 const app = express();
 
 app.use(
-	'/api', 
+	'/api',
 	proxy('http://react-ssr-api.herokuapp.com', {
 		proxyReqOptDecorator(opts){
 			opts.headers['x-forwarded-host'] = 'localhost:3000';
@@ -37,19 +37,26 @@ app.get('*', (req, res) => {
     }
   });
   // used a second map instead of wrapping route.loadData(store) in a promise to avoid uglier syntax and better understanding
-  // Pass a funtion when creating a promise which is called with two functions(resolve and reject) after a new promise created. 
-  // by wrapping each promise in a seperate individual promise, we fix the issue of promise.all .catch 
+  // Pass a funtion when creating a promise which is called with two functions(resolve and reject) after a new promise created.
+  // by wrapping each promise in a seperate individual promise, we fix the issue of promise.all .catch
   // where the outer promise is resolved even if the inner resolve is resolved or rejected.
 
 
-  // Promis.all - If all the promises are successfully resolved, 
+  // Promis.all - If all the promises are successfully resolved,
   // .then is called as callback and .catch is called as callback if there's any error with resolving all promises.
-  // .catch - it is called instantly when an error occurs (rejected promise etc) 
+  // .catch - it is called instantly when an error occurs (rejected promise etc)
   //  even if there are promises left to resolve or going to resolve successfully.
   Promise.all(promises).then(() => {
     const context = {}; // creating context here and passing it to renderer to track its changes for res object.
     const content = renderer(req, store, context);
-    if(context.notFound === true) res.status(404);
+
+		if(context.url) {
+			return res.redirect(301, context.url);
+		}
+    if(context.notFound === true) {
+			res.status(404);
+		}
+
   	res.send(content);
   });
 
